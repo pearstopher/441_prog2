@@ -6,8 +6,10 @@
 # import numpy as np
 from random import randrange
 from math import comb  # n choose k
+from copy import deepcopy
 
 # constants & configuration
+ITERATIONS = 1000
 POPULATION_SIZE = 10  # suggested values: 10, 100, 500, 1000, etc.
 ROWS = COLS = QUEENS = 8  # increase if you want to experiment with a bigger chess board
 MUTATION_PERCENT = 5  # percent chance that a child's gene will be mutated
@@ -85,6 +87,40 @@ def attacking_horizontal(row1, row2):
     return row1 == row2
 
 
+def select_parents(population):
+    total_fitness = total_population_fitness(population)
+    parent1_val = randrange(0, total_fitness)
+    parent2_val = randrange(0, total_fitness)
+
+    parent1 = parent2 = population[0]  # why not
+
+    counter = 0
+    for i in range(len(population)):
+        if counter >= parent1_val:
+            parent1 = population[i]
+            break
+        counter += population[i].fitness
+
+    counter = 0
+    for i in range(len(population)):
+        if counter >= parent2_val:
+            parent2 = population[i]
+            counter += population[i].fitness
+            break
+        counter += population[i].fitness
+
+    return parent1, parent2
+
+
+def total_population_fitness(population):
+    total = 0
+    # for i in range(len(population)):
+    #     total += population[i].fitness
+    for i in population:
+        total += i.fitness
+    return total
+
+
 ###########################################################################################################
 #
 # CrossOver: Once parents having high fitness are selected, crossover essentially marks the recombining
@@ -105,7 +141,7 @@ def crossover(parent1, parent2):
 
     child1 = mutate(child1)
     child2 = mutate(child2)
-    return child1, child2
+    return Position(child1), Position(child2)
 
 
 ###########################################################################################################
@@ -130,7 +166,20 @@ def mutate(child):
 ###########################################################################################################
 
 def main():
-    print("8 queens genetic algorithm")
+
+    children = initial_population()
+
+    for _ in range(ITERATIONS):
+        # parents = deepcopy(children)
+        parents = children  # don't really see the problem
+        children = []
+
+        for _ in range(POPULATION_SIZE):
+            parent1, parent2 = select_parents(parents)
+            child1, child2 = crossover(parent1, parent2)
+
+            children.append(child1)
+            children.append(child2)
 
 
 if __name__ == '__main__':
