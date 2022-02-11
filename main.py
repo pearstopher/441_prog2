@@ -22,7 +22,6 @@ MUTATION_PERCENT = 5  # percent chance that a child's gene will be mutated
 #
 ###########################################################################################################
 
-
 class Position:
     def __init__(self, position=None):
         self.position = position if position else generate_position()
@@ -50,7 +49,6 @@ def generate_position():
 # proportion to the “fitness” of each parent.
 #
 ###########################################################################################################
-
 
 def generate_fitness(parent):
     # the fitness is the difference between the current number of mutually attacking queens and the
@@ -125,9 +123,15 @@ def mutate(child):
     return child
 
 
+###########################################################################################################
+#
+# Set up and run the algorithm
+#
+###########################################################################################################
+
 def main():
     print("8 queens genetic algorithm")
 
 
 if __name__ == '__main__':
-    print("8")
+    main()
