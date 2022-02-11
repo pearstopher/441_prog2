@@ -9,7 +9,7 @@ from math import comb  # n choose k
 from copy import deepcopy
 
 # constants & configuration
-ITERATIONS = 100
+ITERATIONS = 100  # how many generations to run the program for
 POPULATION_SIZE = 100  # suggested values: 10, 100, 500, 1000, etc.
 ROWS = COLS = QUEENS = 8  # increase if you want to experiment with a bigger chess board
 MUTATION_PERCENT = 5  # percent chance that a child's gene will be mutated
@@ -54,13 +54,17 @@ def generate_position():
 
 def generate_fitness(parent):
     # the fitness is the difference between the current number of mutually attacking queens and the
-    #   theoretical maximum (QUEENS choose 2)
-    max_mutually_attacking = comb(QUEENS, 2)
+    #   theoretical maximum
 
     # Need to ensure that the minimum fitness value is at least 1 for small population sizes
     #   otherwise a population can have a total of 0 fitness which will cause range errors
     fitness_offset = 1
-    return max_mutually_attacking - mutually_attacking(parent) + fitness_offset
+    return max_mutually_attacking() - mutually_attacking(parent) + fitness_offset
+
+
+def max_mutually_attacking():
+    # the theoretical maximum number of mutually attacking queens is (QUEENS choose 2)
+    return comb(QUEENS, 2)
 
 
 def mutually_attacking(parent):
@@ -88,6 +92,11 @@ def attacking_diagonal(col1, col2, row1, row2):
 
 def attacking_horizontal(row1, row2):
     return row1 == row2
+
+
+def goal(position):
+    # the board is in a goal state if it reaches maximal fitness
+    return generate_fitness(position) == max_mutually_attacking()
 
 
 def select_parents(population):
