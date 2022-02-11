@@ -12,30 +12,46 @@ POPULATION_SIZE = 10  # suggested values: 10, 100, 500, 1000, etc.
 ROWS = COLS = QUEENS = 8  # increase if you want to experiment with a bigger chess board
 
 
+###########################################################################################################
+#
 # Initial Population: The initialization contains a randomly distributed population. Lower population size
 # will lead to lots of time in computation of approximate solution. And higher value will cause internal
 # iterations to increase. Therefore choose the population size carefully. Suggestion: try experimenting
 # with population sizes of 10, 100, 500, 1000, etc.
+#
+###########################################################################################################
+
+
+class Position:
+    def __init__(self, position=None):
+        self.position = position if position else generate_position()
+        self.fitness = generate_fitness(self.position)
 
 
 def initial_population():
     population = []
     for _ in range(POPULATION_SIZE):
-        population.append(generate_position())
+        population.append(Position())
+    return population
 
 
 def generate_position():
     position = []
     for _ in range(ROWS):
         position.append(randrange(0, COLS))
+    return position
 
 
+###########################################################################################################
+#
 # Selection of parents: Just as evolutionary biology requires two parents to undergo meiosis, so does GA.
 # Therefore there is need to select two parents which determine a child; this selection should be done in
 # proportion to the “fitness” of each parent.
+#
+###########################################################################################################
 
 
-def fitness(parent):
+def generate_fitness(parent):
     # the fitness is the difference between the current number of mutually attacking queens and the
     #   theoretical maximum (QUEENS choose 2)
     max_mutually_attacking = comb(QUEENS, 2)
@@ -70,15 +86,33 @@ def attacking_horizontal(row1, row2):
     return row1 == row2
 
 
+###########################################################################################################
+#
+# CrossOver: Once parents having high fitness are selected, crossover essentially marks the recombining
+# of genetic materials / chromosomes to produce a healthy offspring. Pick a random spot for crossover,
+# and breed two new children (with fitness computed).
+#
+###########################################################################################################
+
+def crossover(parent1, parent2):
+    random_location = randrange(0, COLS)
+    child1 = child2 = []
+    for i in range(0, random_location):
+        child1.append(parent1.position[i])
+        child2.append(parent2.position[i])
+    for i in range(random_location, COLS):
+        child1.append(parent2.position[i])
+        child2.append(parent1.position[i])
+
+    return Position(child1), Position(child2)
 
 
-
-
-
-
-
-
-
+###########################################################################################################
+#
+# Mutation: Mutation may or may not occur. In case mutation occurs, it forces a random value of child to
+# change. Randomly decide whether to mutate based on a MutationPct, and if so, mutate one gene.
+#
+###########################################################################################################
 
 
 def main():
