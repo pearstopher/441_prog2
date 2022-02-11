@@ -10,6 +10,7 @@ from math import comb  # n choose k
 # constants & configuration
 POPULATION_SIZE = 10  # suggested values: 10, 100, 500, 1000, etc.
 ROWS = COLS = QUEENS = 8  # increase if you want to experiment with a bigger chess board
+MUTATION_PERCENT = 5  # percent chance that a child's gene will be mutated
 
 
 ###########################################################################################################
@@ -104,7 +105,9 @@ def crossover(parent1, parent2):
         child1.append(parent2.position[i])
         child2.append(parent1.position[i])
 
-    return Position(child1), Position(child2)
+    child1 = mutate(child1)
+    child2 = mutate(child2)
+    return child1, child2
 
 
 ###########################################################################################################
@@ -113,6 +116,13 @@ def crossover(parent1, parent2):
 # change. Randomly decide whether to mutate based on a MutationPct, and if so, mutate one gene.
 #
 ###########################################################################################################
+
+def mutate(child):
+    if randrange(0, 100) <= MUTATION_PERCENT:
+        rand_gene = randrange(0, COLS)
+        rand_mutation = randrange(0, ROWS)
+        child[rand_gene] = rand_mutation
+    return child
 
 
 def main():
