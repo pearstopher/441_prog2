@@ -9,8 +9,8 @@ from math import comb  # n choose k
 from copy import deepcopy
 
 # constants & configuration
-ITERATIONS = 1000
-POPULATION_SIZE = 10  # suggested values: 10, 100, 500, 1000, etc.
+ITERATIONS = 100
+POPULATION_SIZE = 100  # suggested values: 10, 100, 500, 1000, etc.
 ROWS = COLS = QUEENS = 8  # increase if you want to experiment with a bigger chess board
 MUTATION_PERCENT = 5  # percent chance that a child's gene will be mutated
 
@@ -57,7 +57,9 @@ def generate_fitness(parent):
     #   theoretical maximum (QUEENS choose 2)
     max_mutually_attacking = comb(QUEENS, 2)
 
-    return max_mutually_attacking - mutually_attacking(parent)
+    # need fitness to be at least 1 for rand range w/ small population sizes
+    # otherwise a population of all 0 fitness will cause errors
+    return max_mutually_attacking - mutually_attacking(parent) + 1
 
 
 def mutually_attacking(parent):
@@ -118,6 +120,7 @@ def total_population_fitness(population):
     #     total += population[i].fitness
     for i in population:
         total += i.fitness
+        print(i.fitness)
     return total
 
 
