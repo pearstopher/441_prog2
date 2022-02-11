@@ -57,9 +57,10 @@ def generate_fitness(parent):
     #   theoretical maximum (QUEENS choose 2)
     max_mutually_attacking = comb(QUEENS, 2)
 
-    # need fitness to be at least 1 for rand range w/ small population sizes
-    # otherwise a population of all 0 fitness will cause errors
-    return max_mutually_attacking - mutually_attacking(parent) + 1
+    # Need to ensure that the minimum fitness value is at least 1 for small population sizes
+    #   otherwise a population can have a total of 0 fitness which will cause range errors
+    fitness_offset = 1
+    return max_mutually_attacking - mutually_attacking(parent) + fitness_offset
 
 
 def mutually_attacking(parent):
