@@ -3,13 +3,11 @@
 #   (8 Queens Genetic Algorithm)
 # Christopher Juncker
 
-# import numpy as np
 from random import randrange
 from math import comb  # n choose k
-from copy import deepcopy
 
 # constants & configuration
-ITERATIONS = 100  # how many generations to run the program for
+ITERATIONS = 10000  # how many generations to run the program for
 POPULATION_SIZE = 100  # suggested values: 10, 100, 500, 1000, etc.
 ROWS = COLS = QUEENS = 8  # increase if you want to experiment with a bigger chess board
 MUTATION_PERCENT = 5  # percent chance that a child's gene will be mutated
@@ -104,7 +102,7 @@ def select_parents(population):
     parent1_val = randrange(0, total_fitness)
     parent2_val = randrange(0, total_fitness)
 
-    parent1 = parent2 = population[0]  # why not
+    parent1 = parent2 = population[0]  # warning: parents might be referenced before assignment
 
     counter = 0
     for i in range(len(population)):
@@ -130,8 +128,11 @@ def total_population_fitness(population):
     #     total += population[i].fitness
     for i in population:
         total += i.fitness
-        print(i.fitness)
     return total
+
+
+def average_population_fitness(population):
+    return total_population_fitness(population) / (max_mutually_attacking() * POPULATION_SIZE)
 
 
 ###########################################################################################################
@@ -181,18 +182,25 @@ def mutate(child):
 def main():
 
     children = initial_population()
+    # calculate and display average fitness of initial population
+    fitness = average_population_fitness(children)
+    print("Avg. Fitness (Gen 0):\t", fitness)
 
-    for _ in range(ITERATIONS):
-        # parents = deepcopy(children)
-        parents = children  # don't really see the problem
+    for i in range(ITERATIONS):
+        parents = children
         children = []
 
-        for _ in range(POPULATION_SIZE):
+        # fill children array with next generation of Positions
+        for _ in range(int(POPULATION_SIZE / 2)):
             parent1, parent2 = select_parents(parents)
             child1, child2 = crossover(parent1, parent2)
 
             children.append(child1)
             children.append(child2)
+
+        # calculate and display average fitness of population
+        fitness = average_population_fitness(children)
+        print("Avg. Fitness (Gen " + str(i) + "):\t" + str(fitness))
 
 
 if __name__ == '__main__':
