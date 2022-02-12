@@ -3,14 +3,20 @@
 #   (8 Queens Genetic Algorithm)
 # Christopher Juncker
 
+
+# todo: create a way to determine fitness difference between parents/children
+
 from random import randrange
 from math import comb  # n choose k
+
+from matplotlib import pyplot as plt
+import numpy as np
 
 # constants & configuration
 ITERATIONS = 10000  # how many generations to run the program for
 POPULATION_SIZE = 100  # suggested values: 10, 100, 500, 1000, etc.
 ROWS = COLS = QUEENS = 8  # increase if you want to experiment with a bigger chess board
-MUTATION_PERCENT = 5  # percent chance that a child's gene will be mutated
+MUTATION_PERCENT = 1  # percent chance that a child's gene will be mutated
 
 
 ###########################################################################################################
@@ -181,10 +187,15 @@ def mutate(child):
 
 def main():
 
+    x = np.empty(1)
+    y = np.empty(1)
+
     children = initial_population()
     # calculate and display average fitness of initial population
     fitness = average_population_fitness(children)
-    print("Avg. Fitness (Gen 0):\t", fitness)
+    # print("Avg. Fitness (Gen 0):\t", fitness)
+    x = np.append(x, 0)
+    y = np.append(y, fitness)
 
     for i in range(ITERATIONS):
         parents = children
@@ -200,7 +211,14 @@ def main():
 
         # calculate and display average fitness of population
         fitness = average_population_fitness(children)
-        print("Avg. Fitness (Gen " + str(i) + "):\t" + str(fitness))
+        # print("Avg. Fitness (Gen " + str(i) + "):\t" + str(fitness))
+        x = np.append(x, i + 1)
+        y = np.append(y, fitness)
+
+    plt.plot(x, y)
+    plt.xlim([0, ITERATIONS])
+    plt.ylim([0, 1])
+    plt.show()
 
 
 if __name__ == '__main__':
