@@ -4,7 +4,7 @@
 # Christopher Juncker
 
 
-from random import randrange
+from random import randrange, shuffle
 from math import comb  # n choose k
 
 from matplotlib import pyplot as plt
@@ -15,6 +15,7 @@ ITERATIONS = 1000  # how many generations to run the program for
 POPULATION_SIZE = 1000  # suggested values: 10, 100, 500, 1000, etc.
 ROWS = COLS = QUEENS = 8  # increase if you want to experiment with a bigger chess board
 MUTATION_PERCENT = 2  # percent chance that a child's gene will be mutated
+UNIQUE_ROWS = True  # enforce unique values per row (unique values per column always enforced)
 
 
 ###########################################################################################################
@@ -40,6 +41,17 @@ def initial_population():
 
 
 def generate_position():
+    return generate_unique_rows() if UNIQUE_ROWS \
+        else generate_random()
+
+
+def generate_unique_rows():
+    position = list(range(ROWS))
+    shuffle(position)
+    return position
+
+
+def generate_random():
     position = []
     for _ in range(ROWS):
         position.append(randrange(0, COLS))
@@ -134,7 +146,8 @@ def total_population_fitness(population):
 
 
 def average_population_fitness(population):
-    return total_population_fitness(population) / (max_mutually_attacking() * POPULATION_SIZE)
+    return total_population_fitness(population) / \
+           (max_mutually_attacking() * POPULATION_SIZE)
 
 
 ###########################################################################################################
@@ -146,6 +159,15 @@ def average_population_fitness(population):
 ###########################################################################################################
 
 def crossover(parent1, parent2):
+    return crossover_unique(parent1, parent2) if UNIQUE_ROWS \
+        else crossover_random(parent1, parent2)
+
+
+def crossover_unique(parent1, parent2):
+    return parent1, parent2
+
+
+def crossover_random(parent1, parent2):
     random_location = randrange(0, COLS)
     child1 = child2 = []
     for i in range(0, random_location):
