@@ -11,8 +11,8 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 # constants & configuration
-ITERATIONS = 100  # how many generations to run the program for
-POPULATION_SIZE = 100  # suggested values: 10, 100, 500, 1000, etc.
+ITERATIONS = 1000  # how many generations to run the program for
+POPULATION_SIZE = 1000  # suggested values: 10, 100, 500, 1000, etc.
 ROWS = COLS = QUEENS = 8  # increase if you want to experiment with a bigger chess board
 MUTATION_PERCENT = 2  # percent chance that a child's gene will be mutated
 
@@ -54,14 +54,14 @@ def generate_position():
 #
 ###########################################################################################################
 
-def generate_fitness(parent):
+def generate_fitness(position):
     # the fitness is the difference between the current number of mutually attacking queens and the
     #   theoretical maximum
 
     # Need to ensure that the minimum fitness value is at least 1 for small population sizes
     #   otherwise a population can have a total of 0 fitness which will cause range errors
     fitness_offset = 1
-    return max_mutually_attacking() - mutually_attacking(parent) + fitness_offset
+    return max_mutually_attacking() - mutually_attacking(position) + fitness_offset
 
 
 def max_mutually_attacking():
@@ -69,13 +69,13 @@ def max_mutually_attacking():
     return comb(QUEENS, 2)
 
 
-def mutually_attacking(parent):
+def mutually_attacking(position):
     count = 0
     # loop through each column from left to right
     # count queens attacking current queen from the right
     for i in range(QUEENS):
         for j in range(i + 1, QUEENS):
-            if attacking(i, j, parent[i], parent[j]):
+            if attacking(i, j, position[i], position[j]):
                 count += 1
     return count
 
