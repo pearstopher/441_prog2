@@ -4,8 +4,6 @@
 # Christopher Juncker
 
 
-# todo: create a way to determine fitness difference between parents/children
-
 from random import randrange
 from math import comb  # n choose k
 
@@ -14,7 +12,7 @@ import numpy as np
 
 # constants & configuration
 ITERATIONS = 100  # how many generations to run the program for
-POPULATION_SIZE = 10  # suggested values: 10, 100, 500, 1000, etc.
+POPULATION_SIZE = 100  # suggested values: 10, 100, 500, 1000, etc.
 ROWS = COLS = QUEENS = 8  # increase if you want to experiment with a bigger chess board
 MUTATION_PERCENT = 2  # percent chance that a child's gene will be mutated
 
@@ -185,6 +183,8 @@ def mutate(child):
 
 def main():
 
+    better_children_counter = 0
+
     x = np.empty(1)
     y = np.empty(1)
 
@@ -204,6 +204,12 @@ def main():
             parent1, parent2 = select_parents(parents)
             child1, child2 = crossover(parent1, parent2)
 
+            # let's see how often the children are more fit than their parents
+            parent_fitness = generate_fitness(parent1.position) + generate_fitness(parent2.position)
+            child_fitness = generate_fitness(child1.position) + generate_fitness(child2.position)
+            if child_fitness > parent_fitness:
+                better_children_counter += 1
+
             children.append(child1)
             children.append(child2)
 
@@ -213,6 +219,8 @@ def main():
         x = np.append(x, i + 1)
         y = np.append(y, fitness)
 
+    print((better_children_counter / ((POPULATION_SIZE/2)*ITERATIONS))*100,
+          "percent of child pairs improved on their parents.")
     plt.plot(x, y)
     plt.xlim([0, ITERATIONS])
     plt.ylim([0, 1])
