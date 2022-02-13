@@ -13,10 +13,10 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 # constants & configuration
-ITERATIONS = 10000  # how many generations to run the program for
-POPULATION_SIZE = 100  # suggested values: 10, 100, 500, 1000, etc.
+ITERATIONS = 100  # how many generations to run the program for
+POPULATION_SIZE = 10  # suggested values: 10, 100, 500, 1000, etc.
 ROWS = COLS = QUEENS = 8  # increase if you want to experiment with a bigger chess board
-MUTATION_PERCENT = 1  # percent chance that a child's gene will be mutated
+MUTATION_PERCENT = 2  # percent chance that a child's gene will be mutated
 
 
 ###########################################################################################################
@@ -130,8 +130,6 @@ def select_parents(population):
 
 def total_population_fitness(population):
     total = 0
-    # for i in range(len(population)):
-    #     total += population[i].fitness
     for i in population:
         total += i.fitness
     return total
@@ -193,7 +191,7 @@ def main():
     children = initial_population()
     # calculate and display average fitness of initial population
     fitness = average_population_fitness(children)
-    # print("Avg. Fitness (Gen 0):\t", fitness)
+    print("Avg. Fitness (Gen 0):\t", fitness)
     x = np.append(x, 0)
     y = np.append(y, fitness)
 
@@ -211,7 +209,7 @@ def main():
 
         # calculate and display average fitness of population
         fitness = average_population_fitness(children)
-        # print("Avg. Fitness (Gen " + str(i) + "):\t" + str(fitness))
+        print("Avg. Fitness (Gen " + str(i + 1) + "):\t" + str(fitness))
         x = np.append(x, i + 1)
         y = np.append(y, fitness)
 
