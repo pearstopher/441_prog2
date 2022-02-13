@@ -159,12 +159,38 @@ def average_population_fitness(population):
 ###########################################################################################################
 
 def crossover(parent1, parent2):
-    return crossover_unique(parent1, parent2) if UNIQUE_ROWS \
+    child1, child2 = crossover_unique(parent1, parent2) if UNIQUE_ROWS \
         else crossover_random(parent1, parent2)
+
+    child1 = mutate(child1)
+    child2 = mutate(child2)
+    return Position(child1), Position(child2)
 
 
 def crossover_unique(parent1, parent2):
-    return parent1, parent2
+    random_location = randrange(0, COLS)
+    child1 = child2 = []
+
+    # goal: in parent1, reorder 0 through random_location to match their sequential order in parent2
+    # accomplish a combination of both parents' values while still preserving unique row values
+
+    # fill child1's head with sequential values from parent2
+    for i in range(0, COLS):
+        for j in range(0, random_location):
+            if parent2[i] == parent1[j]:
+                child1.append(parent2[i])
+    # fill child1's tail with original values
+    for i in range(random_location, COLS):
+        child1.append(parent1[i])
+
+    # fill child2's head with original values
+    for i in range(0, random_location):
+        child2.append(parent1[i])
+    # fill child2's tail with sequential values from parent1
+    for i in range(0, COLS):
+        for j in range(random_location, COLS):
+            if parent1[i] == parent2[j]:
+                child2.append(parent1[i])
 
 
 def crossover_random(parent1, parent2):
@@ -177,9 +203,7 @@ def crossover_random(parent1, parent2):
         child1.append(parent2.position[i])
         child2.append(parent1.position[i])
 
-    child1 = mutate(child1)
-    child2 = mutate(child2)
-    return Position(child1), Position(child2)
+    return child1, child2
 
 
 ###########################################################################################################
