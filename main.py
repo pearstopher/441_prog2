@@ -14,8 +14,10 @@ import numpy as np
 ITERATIONS = 1000  # how many generations to run the program for
 POPULATION_SIZE = 1000  # suggested values: 10, 100, 500, 1000, etc.
 ROWS = COLS = QUEENS = 8  # increase if you want to experiment with a bigger chess board
-MUTATION_PERCENT = 2  # percent chance that a child's gene will be mutated
+MUTATION_PERCENT = 0  # percent chance that a child's gene will be mutated
 UNIQUE_ROWS = True  # enforce unique values per row (unique values per column always enforced)
+
+# todo: fix mutation to work when unique_rows is being enforced
 
 
 ###########################################################################################################
@@ -48,6 +50,7 @@ def generate_position():
 def generate_unique_rows():
     position = list(range(ROWS))
     shuffle(position)
+    print(position)
     return position
 
 
@@ -168,8 +171,9 @@ def crossover(parent1, parent2):
 
 
 def crossover_unique(parent1, parent2):
-    random_location = randrange(0, COLS)
-    child1 = child2 = []
+    random_location = randrange(1, COLS - 1)
+    child1 = []
+    child2 = []  # why don't these need to be separated in random?
 
     # goal: in parent1, reorder 0 through random_location to match their sequential order in parent2
     # accomplish a combination of both parents' values while still preserving unique row values
@@ -177,20 +181,23 @@ def crossover_unique(parent1, parent2):
     # fill child1's head with sequential values from parent2
     for i in range(0, COLS):
         for j in range(0, random_location):
-            if parent2[i] == parent1[j]:
-                child1.append(parent2[i])
+            if parent2.position[i] == parent1.position[j]:
+                child1.append(parent2.position[i])
     # fill child1's tail with original values
     for i in range(random_location, COLS):
-        child1.append(parent1[i])
+        child1.append(parent1.position[i])
 
     # fill child2's head with original values
     for i in range(0, random_location):
-        child2.append(parent1[i])
+        child2.append(parent2.position[i])
     # fill child2's tail with sequential values from parent1
     for i in range(0, COLS):
         for j in range(random_location, COLS):
-            if parent1[i] == parent2[j]:
-                child2.append(parent1[i])
+            if parent1.position[i] == parent2.position[j]:
+                child2.append(parent1.position[i])
+
+    # print(child1, child2)
+    return child1, child2
 
 
 def crossover_random(parent1, parent2):
@@ -214,7 +221,7 @@ def crossover_random(parent1, parent2):
 ###########################################################################################################
 
 def mutate(child):
-    if randrange(0, 100) <= MUTATION_PERCENT:
+    if randrange(0, 101) < MUTATION_PERCENT:
         rand_gene = randrange(0, COLS)
         rand_mutation = randrange(0, ROWS)
         child[rand_gene] = rand_mutation
