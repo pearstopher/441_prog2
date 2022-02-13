@@ -4,7 +4,7 @@
 # Christopher Juncker
 
 
-from random import randrange, shuffle
+from random import randrange, shuffle, sample
 from math import comb  # n choose k
 
 from matplotlib import pyplot as plt
@@ -14,7 +14,7 @@ import numpy as np
 ITERATIONS = 1000  # how many generations to run the program for
 POPULATION_SIZE = 1000  # suggested values: 10, 100, 500, 1000, etc.
 ROWS = COLS = QUEENS = 8  # increase if you want to experiment with a bigger chess board
-MUTATION_PERCENT = 0  # percent chance that a child's gene will be mutated
+MUTATION_PERCENT = 1  # percent chance that a child's gene will be mutated
 UNIQUE_ROWS = True  # enforce unique values per row (unique values per column always enforced)
 
 # todo: fix mutation to work when unique_rows is being enforced
@@ -50,7 +50,7 @@ def generate_position():
 def generate_unique_rows():
     position = list(range(ROWS))
     shuffle(position)
-    print(position)
+    # print(position)
     return position
 
 
@@ -196,7 +196,6 @@ def crossover_unique(parent1, parent2):
             if parent1.position[i] == parent2.position[j]:
                 child2.append(parent1.position[i])
 
-    # print(child1, child2)
     return child1, child2
 
 
@@ -222,9 +221,25 @@ def crossover_random(parent1, parent2):
 
 def mutate(child):
     if randrange(0, 101) < MUTATION_PERCENT:
-        rand_gene = randrange(0, COLS)
-        rand_mutation = randrange(0, ROWS)
-        child[rand_gene] = rand_mutation
+        return mutate_unique(child) if UNIQUE_ROWS \
+            else mutate_random(child)
+    return child
+
+
+def mutate_unique(child):
+    # instead of switching a random value,
+    #   swap two consecutive values, randomly
+    i = sample(range(0, COLS), 2)
+    temp = child[i[0]]
+    child[i[0]] = child[i[1]]
+    child[i[1]] = temp
+    return child
+
+
+def mutate_random(child):
+    rand_gene = randrange(0, COLS)
+    rand_mutation = randrange(0, ROWS)
+    child[rand_gene] = rand_mutation
     return child
 
 
