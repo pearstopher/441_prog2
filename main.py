@@ -4,21 +4,18 @@
 # Christopher Juncker
 
 
-from random import randrange, shuffle, sample
+from random import randrange, shuffle, sample, uniform
 from math import comb  # n choose k
-
 from matplotlib import pyplot as plt
 import numpy as np
 
 # constants & configuration
-ITERATIONS = 1000  # how many generations to run the program for
+ITERATIONS = 10000  # how many generations to run the program for
 POPULATION_SIZE = 1000  # suggested values: 10, 100, 500, 1000, etc.
 ROWS = COLS = QUEENS = 8  # increase if you want to experiment with a bigger chess board
-MUTATION_PERCENT = 1  # percent chance that a child's gene will be mutated
+MUTATION_PERCENT = 0.1  # percent chance that a child's gene will be mutated
 UNIQUE_ROWS = True  # enforce unique values per row (unique values per column always enforced)
-
-# todo: fix mutation to work when unique_rows is being enforced
-
+CROSSOVER = True  # u can turn off crossover just for fun (will be mutation only)
 
 ###########################################################################################################
 #
@@ -162,6 +159,9 @@ def average_population_fitness(population):
 ###########################################################################################################
 
 def crossover(parent1, parent2):
+    if not CROSSOVER:
+        return Position(mutate(parent1.position)), Position(mutate(parent2.position))
+
     child1, child2 = crossover_unique(parent1, parent2) if UNIQUE_ROWS \
         else crossover_random(parent1, parent2)
 
@@ -220,7 +220,8 @@ def crossover_random(parent1, parent2):
 ###########################################################################################################
 
 def mutate(child):
-    if randrange(0, 101) < MUTATION_PERCENT:
+    # if randrange(0, 101) < MUTATION_PERCENT:
+    if uniform(0, 1) < MUTATION_PERCENT / 100:
         return mutate_unique(child) if UNIQUE_ROWS \
             else mutate_random(child)
     return child
@@ -276,6 +277,8 @@ def main():
             parent_fitness = generate_fitness(parent1.position) + generate_fitness(parent2.position)
             child_fitness = generate_fitness(child1.position) + generate_fitness(child2.position)
             if child_fitness > parent_fitness:
+                better_children_counter += 1
+            if child_fitness == parent_fitness and randrange(0, 2) == 1:
                 better_children_counter += 1
 
             children.append(child1)
