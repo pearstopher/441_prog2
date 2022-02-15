@@ -10,10 +10,10 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 # constants & configuration
-ITERATIONS = 10000  # how many generations to run the program for
-POPULATION_SIZE = 1000  # suggested values: 10, 100, 500, 1000, etc.
+ITERATIONS = 1000  # how many generations to run the program for
+POPULATION_SIZE = 200  # suggested values: 10, 100, 500, 1000, etc.
 ROWS = COLS = QUEENS = 8  # increase if you want to experiment with a bigger chess board
-MUTATION_PERCENT = 0.1  # percent chance that a child's gene will be mutated
+MUTATION_PERCENT = 0.3  # percent chance that a child's gene will be mutated
 UNIQUE_ROWS = True  # enforce unique values per row (unique values per column always enforced)
 CROSSOVER = True  # u can turn off crossover just for fun (will be mutation only)
 
@@ -25,6 +25,7 @@ CROSSOVER = True  # u can turn off crossover just for fun (will be mutation only
 # with population sizes of 10, 100, 500, 1000, etc.
 #
 ###########################################################################################################
+
 
 class Position:
     def __init__(self, position=None):
@@ -101,7 +102,7 @@ def attacking_diagonal(col1, col2, row1, row2):
     # (row + column) is equal along secondary diagonal
     # flip row numbers to compare principal diagonal
     return (row1 + col1) == (row2 + col2) or \
-           (ROWS - row1 + col1) == (row2 + col2)
+           ((ROWS - 1 - row1) + col1) == ((ROWS - 1 - row2) + col2)
 
 
 def attacking_horizontal(row1, row2):
@@ -147,7 +148,7 @@ def total_population_fitness(population):
 
 def average_population_fitness(population):
     return total_population_fitness(population) / \
-           (max_mutually_attacking() * POPULATION_SIZE)
+           ((max_mutually_attacking() + 1) * POPULATION_SIZE) # 1 = offset again, unlabeled (todo: fix)
 
 
 ###########################################################################################################
@@ -269,7 +270,12 @@ def main():
         children = []
 
         # fill children array with next generation of Positions
-        for _ in range(int(POPULATION_SIZE / 2)):
+        for j in range(int(POPULATION_SIZE / 2)):
+
+            # print out some specific populations to look at
+            if i == 0 or i == 100 or i == 900 or i == 999:
+                print("\tPosition", j, ":", parents[j].position, "Fitness:", parents[j].fitness)
+
             parent1, parent2 = select_parents(parents)
             child1, child2 = crossover(parent1, parent2)
 
