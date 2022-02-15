@@ -3,19 +3,20 @@
 #   (8 Queens Genetic Algorithm)
 # Christopher Juncker
 
-
 from random import randrange, shuffle, sample, uniform
 from math import comb  # n choose k
 from matplotlib import pyplot as plt
 import numpy as np
 
+
 # constants & configuration
 ITERATIONS = 1000  # how many generations to run the program for
-POPULATION_SIZE = 200  # suggested values: 10, 100, 500, 1000, etc.
+POPULATION_SIZE = 1000  # suggested values: 10, 100, 500, 1000, etc.
 ROWS = COLS = QUEENS = 8  # increase if you want to experiment with a bigger chess board
-MUTATION_PERCENT = 0.3  # percent chance that a child's gene will be mutated
+MUTATION_PERCENT = 1  # percent chance that a child's gene will be mutated
 UNIQUE_ROWS = True  # enforce unique values per row (unique values per column always enforced)
 CROSSOVER = True  # u can turn off crossover just for fun (will be mutation only)
+
 
 ###########################################################################################################
 #
@@ -48,7 +49,6 @@ def generate_position():
 def generate_unique_rows():
     position = list(range(ROWS))
     shuffle(position)
-    # print(position)
     return position
 
 
@@ -73,8 +73,7 @@ def generate_fitness(position):
 
     # Need to ensure that the minimum fitness value is at least 1 for small population sizes
     #   otherwise a population can have a total of 0 fitness which will cause range errors
-    fitness_offset = 1
-    return max_mutually_attacking() - mutually_attacking(position) + fitness_offset
+    return max_mutually_attacking() - mutually_attacking(position) + 1  # 1 = fitness_offset
 
 
 def max_mutually_attacking():
@@ -107,11 +106,6 @@ def attacking_diagonal(col1, col2, row1, row2):
 
 def attacking_horizontal(row1, row2):
     return row1 == row2
-
-
-def goal(position):
-    # the board is in a goal state if it reaches maximal fitness
-    return generate_fitness(position) == max_mutually_attacking()
 
 
 def select_parents(population):
@@ -148,7 +142,7 @@ def total_population_fitness(population):
 
 def average_population_fitness(population):
     return total_population_fitness(population) / \
-           ((max_mutually_attacking() + 1) * POPULATION_SIZE) # 1 = offset again, unlabeled (todo: fix)
+           ((max_mutually_attacking() + 1) * POPULATION_SIZE)  # 1 = fitness_offset
 
 
 ###########################################################################################################
@@ -174,10 +168,7 @@ def crossover(parent1, parent2):
 def crossover_unique(parent1, parent2):
     random_location = randrange(1, COLS - 1)
     child1 = []
-    child2 = []  # why don't these need to be separated in random?
-
-    # goal: in parent1, reorder 0 through random_location to match their sequential order in parent2
-    # accomplish a combination of both parents' values while still preserving unique row values
+    child2 = []
 
     # fill child1's head with sequential values from parent2
     for i in range(0, COLS):
@@ -252,13 +243,11 @@ def mutate_random(child):
 ###########################################################################################################
 
 def main():
-
     better_children_counter = 0
-
     x = np.empty(1)
     y = np.empty(1)
-
     children = initial_population()
+
     # calculate and display average fitness of initial population
     fitness = average_population_fitness(children)
     print("Avg. Fitness (Gen 0):\t", fitness)
@@ -273,8 +262,8 @@ def main():
         for j in range(int(POPULATION_SIZE / 2)):
 
             # print out some specific populations to look at
-            if i == 0 or i == 100 or i == 900 or i == 999:
-                print("\tPosition", j, ":", parents[j].position, "Fitness:", parents[j].fitness)
+            # if i == 0 or i == 100 or i == 900 or i == 999:
+            #     print("\tPosition", j, ":", parents[j].position, "Fitness:", parents[j].fitness)
 
             parent1, parent2 = select_parents(parents)
             child1, child2 = crossover(parent1, parent2)
@@ -286,6 +275,7 @@ def main():
                 better_children_counter += 1
             if child_fitness == parent_fitness and randrange(0, 2) == 1:
                 better_children_counter += 1
+            # spoiler: turns out it's never quite 50% even with the good crossover function :'(
 
             children.append(child1)
             children.append(child2)
@@ -298,6 +288,7 @@ def main():
 
     print((better_children_counter / ((POPULATION_SIZE/2)*ITERATIONS))*100,
           "percent of child pairs improved on their parents.")
+
     plt.plot(x, y)
     plt.xlim([0, ITERATIONS])
     plt.ylim([0, 1])
